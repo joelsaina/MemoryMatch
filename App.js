@@ -1,20 +1,36 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Audio } from 'expo-av';
+import AppNavigation from './Navigation'; // Make sure the path is correct
 
 export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
-}
+    const [music, setMusic] = useState(null);
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+    useEffect(() => {
+        const loadMusic = async () => {
+            // Load the music file
+            const { sound } = await Audio.Sound.createAsync(
+                require('./assets/Chill.wav'), // Path to your music file
+                {
+                    shouldPlay: true, // Start playback immediately
+                    isLooping: true, // Loop the playback
+                }
+            );
+            setMusic(sound);
+
+            // Play the music
+            await sound.playAsync();
+        };
+
+        // Call the function to load and play the music
+        loadMusic();
+
+        // Remember to unload the sound from memory when it's no longer needed.
+        return () => {
+            if (music) {
+                music.unloadAsync();
+            }
+        };
+    }, []);
+
+    return <AppNavigation />;
+}
